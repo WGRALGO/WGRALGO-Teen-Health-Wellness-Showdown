@@ -1,0 +1,25 @@
+# Android / Gradle
+.gradle/
+build/
+app/build/
+*.iml
+.idea/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Signing — never commit keystores or secrets
+keystore.properties
+*.jks
+*.keystore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs kept out of source control (attach to GitHub Releases instead)
+*.apk
+*.aab
+*.idsig
+!gradle/wrapper/gradle-wrapper.jar

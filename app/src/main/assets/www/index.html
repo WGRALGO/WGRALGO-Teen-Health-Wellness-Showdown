@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>WGRALGO Teen Health &amp; Wellness Showdown</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===================== START SCREEN ===================== -->
+<section id="screen-start" class="overlay show">
+  <div class="panel">
+    <div class="badge">WGRALGO</div>
+    <h1 class="title">Teen Health &amp; Wellness Showdown</h1>
+    <p class="subtitle">A two-player tug-of-war quiz battle for teen health, wellness, digital
+      safety, media literacy, nutrition, fitness, and prevention.</p>
+    <div class="vs-row">
+      <span class="vs-team t-gold">TEAM GOLD</span>
+      <span class="vs-x">VS</span>
+      <span class="vs-team t-purple">TEAM PURPLE</span>
+    </div>
+    <div class="btn-row">
+      <button class="big-btn primary" id="btn-start">Start Game</button>
+      <button class="big-btn ghost" id="btn-howto">How to Play</button>
+    </div>
+    <p class="fineprint">Runs fully offline &middot; No ads &middot; No tracking &middot; No accounts</p>
+  </div>
+</section>
+
+<!-- ===================== HOW TO PLAY ===================== -->
+<section id="screen-how" class="overlay">
+  <div class="panel">
+    <h2 class="title sm">How to Play</h2>
+    <ul class="how-list">
+      <li>Two players or two teams compete &mdash; <b class="t-gold">Gold</b> on the left, <b class="t-purple">Purple</b> on the right.</li>
+      <li>Read the question shown at the top.</li>
+      <li>Tap the answer on your side of the screen.</li>
+      <li>Correct answers pull the rope toward your team.</li>
+      <li>Wrong answers give the other team an advantage.</li>
+      <li>Pull the other team into the water to win!</li>
+    </ul>
+    <p class="note">This app is for general education only and is not medical advice. For personal
+      health concerns, speak with a qualified health professional or trusted adult.</p>
+    <div class="btn-row">
+      <button class="big-btn primary" id="btn-how-back">Back</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== GAME ===================== -->
+<main id="screen-game">
+  <div id="question-card">
+    <div id="question-progress"></div>
+    <div id="question-text">Loading&hellip;</div>
+  </div>
+
+  <div id="stage">
+    <canvas id="gameCanvas"></canvas>
+  </div>
+
+  <div id="answer-area">
+    <div class="team-panel gold-panel" id="panel1">
+      <div class="team-tag">TEAM GOLD</div>
+      <div class="ans-grid">
+        <button class="ans-btn gold-btn" data-team="1" data-choice="0"></button>
+        <button class="ans-btn gold-btn" data-team="1" data-choice="1"></button>
+        <button class="ans-btn gold-btn" data-team="1" data-choice="2"></button>
+        <button class="ans-btn gold-btn" data-team="1" data-choice="3"></button>
+      </div>
+    </div>
+    <div class="team-panel purple-panel" id="panel2">
+      <div class="team-tag">TEAM PURPLE</div>
+      <div class="ans-grid">
+        <button class="ans-btn purple-btn" data-team="2" data-choice="0"></button>
+        <button class="ans-btn purple-btn" data-team="2" data-choice="1"></button>
+        <button class="ans-btn purple-btn" data-team="2" data-choice="2"></button>
+        <button class="ans-btn purple-btn" data-team="2" data-choice="3"></button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ===================== WINNER ===================== -->
+<section id="screen-winner" class="overlay">
+  <div class="panel winner-panel">
+    <div class="trophy">&#127942;</div>
+    <h2 class="title" id="winner-title">TEAM GOLD WINS!</h2>
+    <p class="subtitle">Great game! Health knowledge is real strength.</p>
+    <div class="btn-row">
+      <button class="big-btn primary" id="btn-restart">Play Again</button>
+      <button class="big-btn ghost" id="btn-winner-home">Main Menu</button>
+    </div>
+  </div>
+</section>
+
+<script src="questions.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

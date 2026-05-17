@@ -1,0 +1,197 @@
+/* WGRALGO Teen Health & Wellness Showdown — tablet-first UI styling.
+   Landscape optimised, touch only, fully local (no remote fonts or images). */
+
+:root{
+  --gold-1:#FFC93C; --gold-2:#F5A623; --gold-deep:#C77800;
+  --purple-1:#A66BFF; --purple-2:#7B2FF7; --purple-deep:#4A1C9E;
+  --navy-1:#0B1437; --navy-2:#162256; --navy-3:#1E3A8A;
+  --teal:#22D3EE;
+  --card:#FFFFFF; --ink:#10162F; --good:#22C55E; --bad:#EF4444;
+  --font: "Segoe UI", Roboto, system-ui, -apple-system, Tahoma, sans-serif;
+}
+
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html,body{
+  height:100%; width:100%; margin:0; padding:0;
+  overflow:hidden; overscroll-behavior:none; touch-action:manipulation;
+  -webkit-user-select:none; user-select:none;
+  font-family:var(--font); color:#fff;
+  background:radial-gradient(circle at 50% 0%, var(--navy-3) 0%, var(--navy-2) 45%, var(--navy-1) 100%);
+}
+
+/* ---------- Overlays (start / how / winner) ---------- */
+.overlay{
+  position:fixed; inset:0; z-index:50;
+  display:none; align-items:center; justify-content:center;
+  padding:24px;
+  background:radial-gradient(circle at 50% 20%, rgba(34,211,238,.12), transparent 60%),
+             linear-gradient(180deg, var(--navy-2), var(--navy-1));
+}
+.overlay.show{ display:flex; }
+
+/* Winner overlay stays see-through so the celebratory canvas (fallen team in
+   the water + falling confetti) animates behind the result panel. */
+#screen-winner{
+  background:radial-gradient(circle at 50% 40%, rgba(11,20,55,.35), rgba(11,20,55,.78));
+}
+#screen-winner .panel{ background:linear-gradient(180deg, rgba(16,22,47,.92), rgba(11,20,55,.92)); }
+body.winner #question-card,
+body.winner #answer-area{ display:none; }
+
+.panel{
+  width:min(860px,94vw); max-height:94vh; overflow:auto;
+  text-align:center;
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:28px; padding:38px 44px;
+  box-shadow:0 24px 70px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.10);
+  backdrop-filter:blur(4px);
+}
+
+.badge{
+  display:inline-block; letter-spacing:.34em; font-weight:800; font-size:15px;
+  color:var(--navy-1); background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+  padding:7px 20px; border-radius:999px; margin-bottom:14px;
+  box-shadow:0 6px 18px rgba(245,166,35,.45);
+}
+.title{
+  margin:6px 0 10px; font-size:clamp(30px,5.4vw,58px); font-weight:900;
+  line-height:1.05; letter-spacing:.5px;
+  background:linear-gradient(180deg,#fff,#cfe0ff);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 2px 18px rgba(123,47,247,.35);
+}
+.title.sm{ font-size:clamp(26px,4vw,42px); }
+.subtitle{ margin:0 auto 18px; max-width:620px; font-size:clamp(15px,2vw,20px);
+  color:#c7d2fe; line-height:1.5; }
+
+.vs-row{ display:flex; align-items:center; justify-content:center; gap:18px; margin:22px 0; }
+.vs-team{ font-weight:900; font-size:clamp(16px,2.4vw,24px); padding:10px 22px;
+  border-radius:14px; }
+.t-gold{ color:var(--gold-1); }
+.t-purple{ color:var(--purple-1); }
+.vs-team.t-gold{ background:rgba(245,166,35,.16); border:1px solid rgba(245,166,35,.5); }
+.vs-team.t-purple{ background:rgba(123,47,247,.18); border:1px solid rgba(166,107,255,.5); }
+.vs-x{ font-weight:900; font-size:22px; color:#9aa6d6; }
+
+.btn-row{ display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
+.big-btn{
+  font-family:var(--font); font-weight:800; font-size:clamp(17px,2.2vw,22px);
+  border:none; border-radius:16px; padding:18px 38px; cursor:pointer;
+  color:#fff; transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;
+}
+.big-btn:active{ transform:translateY(2px) scale(.98); }
+.big-btn.primary{
+  color:var(--navy-1);
+  background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+  box-shadow:0 12px 28px rgba(245,166,35,.45);
+}
+.big-btn.ghost{
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.28);
+}
+.fineprint{ margin-top:22px; font-size:13px; color:#8b97c9; letter-spacing:.04em; }
+.note{ margin:18px auto 8px; max-width:640px; font-size:14px; color:#aab4e6;
+  line-height:1.5; font-style:italic; }
+
+.how-list{ text-align:left; max-width:620px; margin:8px auto 4px; padding-left:22px;
+  font-size:clamp(15px,2vw,20px); line-height:1.7; color:#dbe3ff; }
+.how-list b{ font-weight:900; }
+
+.winner-panel .trophy{ font-size:clamp(64px,12vw,120px); line-height:1;
+  filter:drop-shadow(0 8px 18px rgba(245,166,35,.5)); margin-bottom:6px; }
+
+/* ---------- Game screen ---------- */
+#screen-game{
+  position:fixed; inset:0; display:flex; flex-direction:column;
+  padding:14px 18px 18px; gap:12px;
+}
+
+#question-card{
+  flex:0 0 auto;
+  background:linear-gradient(180deg,#ffffff,#eef2ff);
+  color:var(--ink);
+  border-radius:20px; padding:16px 26px;
+  border:2px solid rgba(123,47,247,.18);
+  box-shadow:0 14px 30px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.8);
+  position:relative;
+}
+#question-progress{
+  position:absolute; top:10px; right:18px;
+  font-size:13px; font-weight:800; color:#7b2ff7; letter-spacing:.08em;
+  opacity:.75;
+}
+#question-text{
+  font-size:clamp(17px,2.4vw,28px); font-weight:800; line-height:1.34;
+  text-align:center; max-width:1100px; margin:0 auto;
+}
+
+#stage{ flex:1 1 auto; min-height:0; display:flex; }
+#gameCanvas{
+  width:100%; height:100%;
+  border-radius:18px;
+  box-shadow:0 16px 40px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.06);
+  display:block;
+}
+
+#answer-area{ flex:0 0 auto; display:flex; gap:16px; }
+.team-panel{ flex:1; border-radius:18px; padding:12px 14px 14px;
+  border:1px solid rgba(255,255,255,.12); }
+.gold-panel{ background:linear-gradient(180deg, rgba(245,166,35,.14), rgba(245,166,35,.05)); }
+.purple-panel{ background:linear-gradient(180deg, rgba(123,47,247,.16), rgba(123,47,247,.05)); }
+.team-tag{ font-weight:900; letter-spacing:.16em; font-size:14px; margin:2px 4px 10px; }
+.gold-panel .team-tag{ color:var(--gold-1); }
+.purple-panel .team-tag{ color:var(--purple-1); }
+
+.ans-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.ans-btn{
+  font-family:var(--font); font-weight:700;
+  font-size:clamp(13px,1.55vw,19px); line-height:1.28;
+  min-height:clamp(58px,9vh,104px);
+  border:none; border-radius:14px; cursor:pointer; color:#fff;
+  padding:12px 14px;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  word-break:break-word; hyphens:auto;
+  transition:transform .07s ease, filter .15s ease, box-shadow .15s ease, opacity .2s ease;
+}
+.ans-btn:active{ transform:scale(.97); }
+.gold-btn{
+  color:#3a2600;
+  background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+  box-shadow:0 8px 18px rgba(245,166,35,.35), inset 0 2px 0 rgba(255,255,255,.5);
+}
+.purple-btn{
+  background:linear-gradient(180deg,var(--purple-1),var(--purple-2));
+  box-shadow:0 8px 18px rgba(123,47,247,.4), inset 0 2px 0 rgba(255,255,255,.25);
+}
+.ans-btn.correct{
+  animation:pop .45s ease;
+  box-shadow:0 0 0 4px rgba(34,197,94,.65), 0 0 30px rgba(34,197,94,.7) !important;
+  filter:brightness(1.12);
+}
+.ans-btn.wrong{
+  animation:shake .42s ease;
+  background:linear-gradient(180deg,#ff6b6b,#d62828) !important;
+  color:#fff !important;
+  box-shadow:0 0 0 4px rgba(239,68,68,.6) !important;
+}
+.ans-btn.locked{ opacity:.38; pointer-events:none; filter:grayscale(.35); }
+
+@keyframes pop{ 0%{transform:scale(1)} 45%{transform:scale(1.07)} 100%{transform:scale(1)} }
+@keyframes shake{
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-9px)}
+  40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(4px)}
+}
+
+/* ---------- Portrait / phone fallback ---------- */
+@media (max-aspect-ratio:1/1){
+  #answer-area{ flex-direction:column; gap:10px; }
+  .ans-grid{ gap:8px; }
+  .ans-btn{ min-height:52px; font-size:14px; }
+  #question-text{ font-size:17px; }
+}
+@media (max-height:430px){
+  #screen-game{ padding:8px 12px 10px; gap:8px; }
+  #question-card{ padding:10px 18px; }
+  .ans-btn{ min-height:48px; }
+}

@@ -16,7 +16,7 @@
   var CENTER_X = LW / 2;
   var GROUND_Y = 372;          // top of the platforms / where feet rest
   var WATER_TOP = 366;         // water surface inside the central pit
-  var PIT_L = 470, PIT_R = 810;// central water pit horizontal bounds
+  var PIT_L = 560, PIT_R = 720;// central water pit horizontal bounds
   var ROPE_Y = 300;            // resting rope height (hand grip line)
 
   /* ---------- Game state --------------------------------------------------- */
@@ -170,52 +170,198 @@
   /* ---------- Teen characters --------------------------------------------- */
   // Per-team rosters: distinct skin tones, hair colour & style, builds.
   var goldTeam = [
-    { off: -118, skin: "#F1C9A5", hair: "#3A2A1A", style: "short",   build: 1.00 },
-    { off: -188, skin: "#8D5A33", hair: "#1A1A1A", style: "bun",     build: 1.06 },
-    { off: -262, skin: "#C68642", hair: "#7A3B17", style: "curly",   build: 0.95 }
+    { off: -115, skin: "#F1C9A5", hair: "#3A2A1A", style: "short",   build: 1.00 },
+    { off: -250, skin: "#8D5A33", hair: "#1A1A1A", style: "bun",     build: 1.06 },
+    { off: -385, skin: "#C68642", hair: "#7A3B17", style: "curly",   build: 0.95 }
   ];
   var purpleTeam = [
-    { off: 118, skin: "#5C3A21", hair: "#101010", style: "ponytail", build: 1.02 },
-    { off: 188, skin: "#FAD7B4", hair: "#E8B84B", style: "fade",     build: 0.96 },
-    { off: 262, skin: "#A56A40", hair: "#2A1B12", style: "short",    build: 1.05 }
+    { off: 115, skin: "#5C3A21", hair: "#101010", style: "ponytail", build: 1.02 },
+    { off: 250, skin: "#FAD7B4", hair: "#E8B84B", style: "fade",     build: 0.96 },
+    { off: 385, skin: "#A56A40", hair: "#2A1B12", style: "short",    build: 1.05 }
   ];
 
-  function drawHair(hx, hy, r, dir, style, color) {
-    ctx.fillStyle = color;
-    ctx.strokeStyle = shade(color, -28);
-    ctx.lineWidth = 1.5;
-    // base cap
+  /* Shaded tapered limb: solid fill + outline, then a lit highlight streak
+     along the upper edge so arms/legs read as rounded muscle, not flat tubes. */
+  function shLimb(x1, y1, x2, y2, w1, w2, fill, edge) {
+    limb(x1, y1, x2, y2, w1, w2, fill, edge);
+    var dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1;
+    var nx = -dy / len, ny = dx / len;                 // unit normal
     ctx.beginPath();
-    ctx.arc(hx, hy, r + 2, Math.PI * 0.92, Math.PI * 2.08);
-    ctx.lineTo(hx + dir * (r - 1), hy + 3);
-    ctx.closePath(); ctx.fill();
+    ctx.moveTo(x1 + nx * (w1 * 0.45), y1 + ny * (w1 * 0.45));
+    ctx.lineTo(x2 + nx * (w2 * 0.45), y2 + ny * (w2 * 0.45));
+    ctx.lineWidth = Math.max(1.4, w2 * 0.6);
+    ctx.lineCap = "round";
+    ctx.strokeStyle = shade(fill, 26);
+    ctx.stroke();
+  }
+
+  function drawHair(hx, hy, r, dir, style, color) {
+    var lit = shade(color, 30), dark = shade(color, -34);
+    ctx.fillStyle = color;
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.6;
     var back = hx - dir * (r - 2);
-    if (style === "bun") {
-      ctx.beginPath(); ctx.arc(back, hy - r - 2, 9, 0, Math.PI * 2);
-      ctx.fill(); ctx.stroke();
-    } else if (style === "ponytail") {
+    // back mass first (behind head) for ponytail / bun / curly volume
+    if (style === "ponytail") {
       ctx.beginPath();
-      ctx.moveTo(back, hy - r + 2);
-      ctx.quadraticCurveTo(back - dir * 20, hy + 4, back - dir * 8, hy + 30);
-      ctx.quadraticCurveTo(back - dir * 2, hy + 6, back, hy - r + 6);
-      ctx.fill();
-    } else if (style === "curly") {
-      for (var i = -1; i <= 3; i++) {
+      ctx.moveTo(back, hy - r + 1);
+      ctx.quadraticCurveTo(back - dir * 24, hy + 6, back - dir * 10, hy + 34);
+      ctx.quadraticCurveTo(back - dir * 1, hy + 8, back + dir * 2, hy - r + 6);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = color;
+    } else if (style === "bun") {
+      ctx.beginPath(); ctx.arc(back - dir * 1, hy - r - 3, 10, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+    }
+    // scalp cap — full rounded crown that hugs the skull
+    ctx.fillStyle = color; ctx.strokeStyle = dark; ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.arc(hx, hy - 1, r + 2.5, Math.PI * 0.86, Math.PI * 2.14);
+    ctx.quadraticCurveTo(hx + dir * (r + 3), hy + 2, hx + dir * (r - 2), hy + 5);
+    ctx.lineTo(hx - dir * (r - 1), hy + 4);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // crown sheen
+    ctx.fillStyle = lit;
+    ctx.beginPath();
+    ctx.ellipse(hx - dir * 3, hy - r + 1, r * 0.5, r * 0.32, dir * 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = color;
+    if (style === "curly") {
+      for (var i = -2; i <= 3; i++) {
         ctx.beginPath();
-        ctx.arc(hx - dir * (i * 5) + dir * 6, hy - r - 1 + (i % 2) * 3, 6.5, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.arc(hx - dir * (i * 5) + dir * 5,
+                hy - r - 1 + (i % 2) * 4, 7, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
       }
     } else if (style === "fade") {
+      // tight taper at the temple
       ctx.beginPath();
-      ctx.ellipse(hx + dir * 2, hy - 2, r + 1, r - 1, 0, Math.PI, Math.PI * 2);
-      ctx.fill();
-    } else { // short
+      ctx.ellipse(hx + dir * 2, hy - 3, r + 1, r - 2, 0, Math.PI, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = dark; ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(hx + dir * (r), hy - 2);
+      ctx.moveTo(hx + dir * (r - 1), hy + 2);
+      ctx.lineTo(hx + dir * (r - 1), hy - 4); ctx.stroke();
+    } else if (style === "short") {
+      ctx.beginPath();
+      ctx.moveTo(hx + dir * r, hy - 1);
       ctx.quadraticCurveTo(hx + dir * (r + 4), hy - r, hx - dir * 2, hy - r - 3);
-      ctx.quadraticCurveTo(back - dir * 4, hy - r + 1, back - dir * 2, hy + 2);
+      ctx.quadraticCurveTo(back - dir * 4, hy - r + 1, back - dir * 2, hy + 3);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+    // front fringe sweep for non-fade styles
+    if (style !== "fade") {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(hx + dir * (r - 1), hy - 6);
+      ctx.quadraticCurveTo(hx + dir * (r + 2), hy - r * 0.5,
+                           hx + dir * 4, hy - r + 2);
+      ctx.quadraticCurveTo(hx + dir * 2, hy - 3, hx + dir * (r - 1), hy - 6);
       ctx.fill();
     }
+  }
+
+  /* Draw one teen. cfg = roster entry; gx,gy = rope grip point in scene coords.
+     strain 0..1 (how hard this side is straining). fall = null or
+     {x,y,rot} ragdoll override when tumbling into the water. */
+  /* Anatomical head: skull + tapered jaw, ear, brow, eye, nose, set mouth. */
+  function drawHead(hx, hy, r, dir, cfg, strain) {
+    var skinEdge = shade(cfg.skin, -45);
+    var skinLit  = shade(cfg.skin, 22);
+    // skull + jaw silhouette (oval narrowing to a chin)
+    ctx.fillStyle = cfg.skin; ctx.strokeStyle = skinEdge; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(hx - dir * r, hy - r * 0.2);
+    ctx.quadraticCurveTo(hx - dir * r, hy - r * 1.05, hx, hy - r * 1.05);
+    ctx.quadraticCurveTo(hx + dir * r, hy - r * 1.05, hx + dir * r, hy - r * 0.1);
+    ctx.quadraticCurveTo(hx + dir * r * 0.94, hy + r * 0.78, hx + dir * r * 0.34, hy + r * 1.06);
+    ctx.quadraticCurveTo(hx, hy + r * 1.18, hx - dir * r * 0.5, hy + r * 0.9);
+    ctx.quadraticCurveTo(hx - dir * r, hy + r * 0.5, hx - dir * r, hy - r * 0.2);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // cheek light
+    ctx.fillStyle = skinLit;
+    ctx.beginPath();
+    ctx.ellipse(hx + dir * r * 0.3, hy + r * 0.18, r * 0.42, r * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // ear (back side)
+    ctx.fillStyle = cfg.skin; ctx.strokeStyle = skinEdge; ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(hx - dir * r * 0.92, hy + 1, 4.2, 6, 0, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = skinEdge; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(hx - dir * r * 0.92, hy + 1, 2.4, -1, 2.4); ctx.stroke();
+    // jaw shadow line
+    ctx.strokeStyle = "rgba(0,0,0,0.16)"; ctx.lineWidth = 2; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(hx - dir * r * 0.6, hy + r * 0.55);
+    ctx.quadraticCurveTo(hx, hy + r * 1.0, hx + dir * r * 0.5, hy + r * 0.7);
+    ctx.stroke();
+    // eyebrow — drawn down, determined; harder when straining
+    var bw = 0.08 + strain * 0.10;
+    ctx.strokeStyle = shade(cfg.hair, -10); ctx.lineWidth = 2.6; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(hx + dir * r * 0.18, hy - r * 0.34 - bw * 12);
+    ctx.lineTo(hx + dir * r * 0.78, hy - r * 0.16 + bw * 6);
+    ctx.stroke();
+    // eye socket + eye + iris
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.ellipse(hx + dir * r * 0.46, hy - r * 0.05, 3.4, 2.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#2a1d12";
+    ctx.beginPath();
+    ctx.arc(hx + dir * r * 0.58, hy - r * 0.04, 1.9, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(hx + dir * r * 0.5, hy - r * 0.12, 0.7, 0, Math.PI * 2); ctx.fill();
+    // lower lid line
+    ctx.strokeStyle = skinEdge; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(hx + dir * r * 0.24, hy + r * 0.04);
+    ctx.lineTo(hx + dir * r * 0.66, hy + r * 0.06); ctx.stroke();
+    // nose
+    ctx.strokeStyle = skinEdge; ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(hx + dir * r * 0.78, hy + r * 0.04);
+    ctx.quadraticCurveTo(hx + dir * r * 0.96, hy + r * 0.3, hx + dir * r * 0.7, hy + r * 0.36);
+    ctx.stroke();
+    // mouth — set with effort
+    ctx.strokeStyle = "#7a2f2f"; ctx.lineWidth = 2.2; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(hx + dir * r * 0.3, hy + r * 0.62);
+    ctx.quadraticCurveTo(hx + dir * r * 0.56, hy + r * (0.62 + strain * 0.12),
+                         hx + dir * r * 0.78, hy + r * 0.54);
+    ctx.stroke();
+    drawHair(hx, hy, r, dir, cfg.style, cfg.hair);
+  }
+
+  function drawSneaker(x, y, dir, scale, jersey) {
+    ctx.save();
+    ctx.translate(x, y);
+    // sole
+    ctx.fillStyle = "#f4f4f4"; ctx.strokeStyle = "#b9b9c4"; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-15 * scale, 6);
+    ctx.quadraticCurveTo(dir * 22 * scale, 9, dir * 21 * scale, 1);
+    ctx.lineTo(-14 * scale, 1);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // upper
+    ctx.fillStyle = jersey.bright; ctx.strokeStyle = jersey.edge; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-14 * scale, 1);
+    ctx.quadraticCurveTo(-15 * scale, -10 * scale, -4 * scale, -11 * scale);
+    ctx.quadraticCurveTo(dir * 10 * scale, -10 * scale, dir * 20 * scale, 0);
+    ctx.lineTo(-14 * scale, 1);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // laces
+    ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.lineWidth = 1.4;
+    for (var i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(dir * (1 + i * 5) * scale, -9 * scale + i);
+      ctx.lineTo(dir * (5 + i * 5) * scale, -3 * scale + i);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   /* Draw one teen. cfg = roster entry; gx,gy = rope grip point in scene coords.
@@ -224,25 +370,42 @@
   function drawTeen(cfg, baseX, dir, jersey, gx, gy, strain, time, fall) {
     var skinEdge = shade(cfg.skin, -45);
     var build = cfg.build;
+    var shorts = "#222845", shortsEdge = "#12162a";
+    var jnum = (Math.round(Math.abs(cfg.off) / 17) % 9) + 1;
 
     if (fall) {
-      // ---- Tumbling ragdoll ----
+      // ---- Tumbling ragdoll (matches the standing build) ----
       ctx.save();
       ctx.translate(fall.x, fall.y);
       ctx.rotate(fall.rot);
       // torso
-      ctx.fillStyle = jersey.mid; ctx.strokeStyle = jersey.edge; ctx.lineWidth = 2.4;
-      ctx.beginPath(); ctx.ellipse(0, 0, 19 * build, 26 * build, 0, 0, Math.PI * 2);
-      ctx.fill(); ctx.stroke();
-      // curled limbs
-      limb(-4, -6, -26, -14, 6, 4, cfg.skin, skinEdge);
-      limb(4, -6, 24, -18, 6, 4, cfg.skin, skinEdge);
-      limb(-6, 18, -22, 30, 8, 5, "#2A2F45", "#171a26");
-      limb(6, 18, 22, 30, 8, 5, "#2A2F45", "#171a26");
-      // head
-      ctx.fillStyle = cfg.skin; ctx.strokeStyle = skinEdge; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(0, -34, 15, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      drawHair(0, -34, 15, 1, cfg.style, cfg.hair);
+      var fg = ctx.createLinearGradient(0, -26, 0, 26);
+      fg.addColorStop(0, jersey.bright); fg.addColorStop(1, jersey.mid);
+      ctx.fillStyle = fg; ctx.strokeStyle = jersey.edge; ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(-20 * build, -22);
+      ctx.quadraticCurveTo(0, -30, 20 * build, -22);
+      ctx.quadraticCurveTo(15 * build, 4, 13 * build, 24);
+      ctx.quadraticCurveTo(0, 30, -13 * build, 24);
+      ctx.quadraticCurveTo(-15 * build, 4, -20 * build, -22);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      // flailing limbs
+      shLimb(-6, -14, -28, -22, 7, 4.5, cfg.skin, skinEdge);
+      shLimb(6, -14, 26, -26, 7, 4.5, cfg.skin, skinEdge);
+      shLimb(-7, 20, -20, 30, 9, 6, shorts, shortsEdge);
+      shLimb(-20, 30, -26, 44, 6, 4.5, cfg.skin, skinEdge);
+      shLimb(7, 20, 22, 30, 9, 6, shorts, shortsEdge);
+      shLimb(22, 30, 30, 44, 6, 4.5, cfg.skin, skinEdge);
+      drawSneaker(-27, 46, -1, 0.85, jersey);
+      drawSneaker(31, 46, 1, 0.85, jersey);
+      // hands
+      ctx.fillStyle = cfg.skin; ctx.strokeStyle = skinEdge; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.arc(-29, -23, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.arc(27, -27, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      // neck + head
+      ctx.strokeStyle = cfg.skin; ctx.lineWidth = 10;
+      ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(2, -34); ctx.stroke();
+      drawHead(2, -40, 14, 1, cfg, 1);
       ctx.restore();
       return;
     }
@@ -254,128 +417,163 @@
     var shX  = hipX - dir * (26 + strain * 26 + Math.sin(lean) * 8);
     var shY  = hipY - 60 * build;
 
-    // Foot shadow
-    ctx.fillStyle = "rgba(0,0,0,0.28)";
+    // Foot / ground contact shadow
+    ctx.fillStyle = "rgba(0,0,0,0.30)";
     ctx.beginPath();
-    ctx.ellipse(baseX - dir * 4, GROUND_Y + 6, 46, 9, 0, 0, Math.PI * 2);
+    ctx.ellipse(baseX - dir * 4, GROUND_Y + 6, 48, 9, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Legs (back leg = drive leg, front leg = brace) — drawn behind torso
+    // Leg geometry (back = drive leg, front = brace) — behind the torso
     var frontFootX = baseX + dir * (38 + strain * 10);
-    var backFootX  = baseX - dir * (50 + strain * 16);
+    var backFootX  = baseX - dir * (52 + strain * 16);
     var frontKneeX = (hipX + frontFootX) / 2 + dir * 12;
     var backKneeX  = (hipX + backFootX) / 2 - dir * 4;
-    var pants = "#2C3354", pantsEdge = "#191d30";
-    limb(hipX, hipY, backKneeX, GROUND_Y - 40, 12 * build, 9, pants, pantsEdge);
-    limb(backKneeX, GROUND_Y - 40, backFootX, GROUND_Y - 4, 9, 6, cfg.skin, skinEdge);
-    limb(hipX, hipY, frontKneeX, GROUND_Y - 44, 13 * build, 10, pants, pantsEdge);
-    limb(frontKneeX, GROUND_Y - 44, frontFootX, GROUND_Y - 2, 10, 7, cfg.skin, skinEdge);
-    // Shoes
-    ctx.fillStyle = jersey.bright; ctx.strokeStyle = jersey.edge; ctx.lineWidth = 2;
-    [[frontFootX, 1], [backFootX, 0.85]].forEach(function (f) {
-      ctx.beginPath();
-      ctx.ellipse(f[0] + dir * 6, GROUND_Y + 1, 15 * f[1], 7, 0, 0, Math.PI * 2);
-      ctx.fill(); ctx.stroke();
-    });
+    // back leg: thigh (shorts) -> shin (skin)
+    shLimb(hipX - dir * 4, hipY + 4, backKneeX, GROUND_Y - 42,
+           13 * build, 8, shade(shorts, -8), shortsEdge);
+    shLimb(backKneeX, GROUND_Y - 42, backFootX, GROUND_Y - 6,
+           8, 5.5, shade(cfg.skin, -12), skinEdge);
+    drawSneaker(backFootX, GROUND_Y, -dir, 0.86, jersey);
+    // front leg
+    shLimb(hipX + dir * 6, hipY + 4, frontKneeX, GROUND_Y - 46,
+           14 * build, 9, shorts, shortsEdge);
+    shLimb(frontKneeX, GROUND_Y - 46, frontFootX, GROUND_Y - 4,
+           9, 6, cfg.skin, skinEdge);
+    drawSneaker(frontFootX, GROUND_Y, dir, 1, jersey);
 
-    // Back arm (far side) reaching to rope
-    var backShX = shX + dir * 3;
-    limb(backShX, shY + 4, (backShX + gx) / 2 - dir * 4, (shY + gy) / 2 + 4,
-         8, 6, shade(cfg.skin, -22), skinEdge);
-    limb((backShX + gx) / 2 - dir * 4, (shY + gy) / 2 + 4, gx - dir * 6, gy,
-         6, 5, shade(cfg.skin, -22), skinEdge);
-
-    // Torso / jersey
-    var grad = ctx.createLinearGradient(0, shY, 0, hipY);
-    grad.addColorStop(0, jersey.bright);
-    grad.addColorStop(1, jersey.mid);
-    ctx.fillStyle = grad; ctx.strokeStyle = jersey.edge; ctx.lineWidth = 2.6;
-    var tw = 21 * build;
+    // Pelvis / shorts block bridging hips to thighs
+    ctx.fillStyle = shorts; ctx.strokeStyle = shortsEdge; ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(shX - tw, shY);
-    ctx.quadraticCurveTo(shX, shY - 7, shX + tw, shY);
-    ctx.quadraticCurveTo(hipX + tw + 4, (shY + hipY) / 2, hipX + 16, hipY + 4);
-    ctx.quadraticCurveTo(hipX, hipY + 9, hipX - 16, hipY + 4);
-    ctx.quadraticCurveTo(shX - tw - 4, (shY + hipY) / 2, shX - tw, shY);
+    ctx.moveTo(hipX - 17 * build, hipY - 6);
+    ctx.lineTo(hipX + 17 * build, hipY - 6);
+    ctx.quadraticCurveTo(hipX + 20 * build, hipY + 18, hipX + 8, hipY + 26);
+    ctx.lineTo(hipX - 8, hipY + 26);
+    ctx.quadraticCurveTo(hipX - 20 * build, hipY + 18, hipX - 17 * build, hipY - 6);
     ctx.closePath(); ctx.fill(); ctx.stroke();
-    // jersey side stripe
+
+    // Back arm (far side) — drawn behind torso
+    var backShX = shX + dir * 3;
+    var bElbowX = (backShX + gx) / 2 - dir * 4, bElbowY = (shY + gy) / 2 + 6;
+    shLimb(backShX, shY + 4, bElbowX, bElbowY, 8.5, 6.5,
+           shade(cfg.skin, -24), skinEdge);
+    shLimb(bElbowX, bElbowY, gx - dir * 7, gy, 6.5, 5,
+           shade(cfg.skin, -24), skinEdge);
+
+    // Torso / jersey — broad shoulders tapering to waist
+    var grad = ctx.createLinearGradient(shX - 20, shY, hipX + 20, hipY);
+    grad.addColorStop(0, jersey.bright);
+    grad.addColorStop(0.55, jersey.mid);
+    grad.addColorStop(1, shade(jersey.mid, -22));
+    ctx.fillStyle = grad; ctx.strokeStyle = jersey.edge; ctx.lineWidth = 2.6;
+    var tw = 23 * build;                              // shoulder half-width
+    var ww = 16 * build;                              // waist half-width
+    ctx.beginPath();
+    ctx.moveTo(shX - tw, shY + 2);
+    ctx.quadraticCurveTo(shX, shY - 9, shX + tw, shY + 2);
+    ctx.quadraticCurveTo(hipX + ww + 5, (shY + hipY) / 2, hipX + ww, hipY + 6);
+    ctx.quadraticCurveTo(hipX, hipY + 12, hipX - ww, hipY + 6);
+    ctx.quadraticCurveTo(shX - tw - 5, (shY + hipY) / 2, shX - tw, shY + 2);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // sleeve caps over the deltoids
+    ctx.fillStyle = shade(jersey.mid, -14);
+    [dir, -dir].forEach(function (s) {
+      ctx.beginPath();
+      ctx.ellipse(shX + s * tw * 0.92, shY + 6, 9 * build, 12 * build,
+                  s * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    // neckline
+    ctx.strokeStyle = jersey.edge; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(shX - dir * 9, shY - 3);
+    ctx.quadraticCurveTo(shX - dir * 2, shY + 7, shX + dir * 9, shY - 3);
+    ctx.stroke();
+    // centre seam + jersey number
+    ctx.strokeStyle = "rgba(0,0,0,0.14)"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(shX - dir * 2, shY + 6);
+    ctx.quadraticCurveTo((shX + hipX) / 2, (shY + hipY) / 2, hipX, hipY);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,0.82)";
+    ctx.font = "800 18px Segoe UI, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(String(jnum),
+                 (shX + hipX) / 2 - dir * 2, (shY + hipY) / 2 + 2);
+    // side seam stripe
     ctx.strokeStyle = jersey.bright; ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(shX + dir * tw * 0.4, shY + 4);
-    ctx.lineTo(hipX + dir * 12, hipY);
+    ctx.moveTo(shX + dir * tw * 0.6, shY + 6);
+    ctx.lineTo(hipX + dir * ww, hipY + 2);
     ctx.stroke();
 
     // Neck + head
-    var headX = shX - dir * 2, headY = shY - 22;
-    ctx.strokeStyle = cfg.skin; ctx.lineWidth = 11;
-    ctx.beginPath(); ctx.moveTo(shX, shY); ctx.lineTo(headX, headY + 12); ctx.stroke();
-    ctx.fillStyle = cfg.skin; ctx.strokeStyle = skinEdge; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(headX, headY, 15, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    // ear
-    ctx.beginPath(); ctx.arc(headX - dir * 13, headY + 1, 4, 0, Math.PI * 2);
-    ctx.fill(); ctx.stroke();
-    // face — determined effort
-    ctx.fillStyle = "#1c1c24";
-    ctx.beginPath(); ctx.arc(headX + dir * 6, headY - 1, 2.4, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "#1c1c24"; ctx.lineWidth = 2.2; ctx.lineCap = "round";
-    ctx.beginPath(); // angled brow
-    ctx.moveTo(headX + dir * 2, headY - 7);
-    ctx.lineTo(headX + dir * 10, headY - 4); ctx.stroke();
-    ctx.beginPath(); // gritted mouth
-    ctx.moveTo(headX + dir * 2, headY + 8);
-    ctx.lineTo(headX + dir * 10, headY + 8); ctx.stroke();
-    drawHair(headX, headY, 15, dir, cfg.style, cfg.hair);
-    // sweat when straining hard
+    var headX = shX - dir * 3, headY = shY - 26;
+    var grd = ctx.createLinearGradient(shX, shY - 14, shX, shY + 2);
+    grd.addColorStop(0, cfg.skin); grd.addColorStop(1, shade(cfg.skin, -26));
+    ctx.strokeStyle = cfg.skin; ctx.lineWidth = 12;
+    ctx.beginPath(); ctx.moveTo(shX, shY - 2); ctx.lineTo(headX, headY + 14); ctx.stroke();
+    ctx.fillStyle = grd;
+    ctx.fillRect(headX - 6, headY + 8, 12, 10);       // sterno shading under chin
+    drawHead(headX, headY, 15, dir, cfg, strain);
+    // sweat bead when straining hard
     if (strain > 0.62) {
-      ctx.fillStyle = "rgba(120,200,255,0.85)";
+      ctx.fillStyle = "rgba(150,210,255,0.9)";
       ctx.beginPath();
-      ctx.ellipse(headX + dir * 16, headY - 4 + (time * 60 % 14), 2.4, 3.4, 0, 0, Math.PI * 2);
+      ctx.ellipse(headX + dir * 16, headY - 2 + (time * 60 % 16),
+                  2.4, 3.6, 0, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Front arm reaching to rope (over torso)
-    var frShX = shX + dir * 6;
-    limb(frShX, shY + 3, (frShX + gx) / 2 + dir * 6, (shY + gy) / 2,
-         9, 6, cfg.skin, skinEdge);
-    limb((frShX + gx) / 2 + dir * 6, (shY + gy) / 2, gx, gy,
-         6, 5, cfg.skin, skinEdge);
-    // gripping hand
+    // Front arm (over torso) — deltoid -> bicep -> forearm -> gripping hand
+    var frShX = shX + dir * 7;
+    var fElbowX = (frShX + gx) / 2 + dir * 7, fElbowY = (shY + gy) / 2 + 2;
     ctx.fillStyle = cfg.skin; ctx.strokeStyle = skinEdge; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(gx, gy, 6.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(frShX, shY + 5, 8 * build, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    shLimb(frShX, shY + 5, fElbowX, fElbowY, 9.5, 6.5, cfg.skin, skinEdge);
+    shLimb(fElbowX, fElbowY, gx, gy, 6.5, 5, cfg.skin, skinEdge);
+    // gripping hand: palm + thumb wrapping the rope
+    ctx.fillStyle = cfg.skin; ctx.strokeStyle = skinEdge; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(gx, gy, 7, 5.5, dir * 0.5, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(gx - dir * 4, gy + 4, 3, 0, Math.PI * 2);  // thumb
+    ctx.fill(); ctx.stroke();
   }
 
   /* ---------- Scene background -------------------------------------------- */
   function drawBackground() {
     var sky = ctx.createLinearGradient(0, 0, 0, LH);
-    sky.addColorStop(0, "#1E3A8A");
-    sky.addColorStop(0.5, "#162256");
-    sky.addColorStop(1, "#0B1437");
+    sky.addColorStop(0, "#0A0A0A");
+    sky.addColorStop(0.5, "#070707");
+    sky.addColorStop(1, "#000000");
     ctx.fillStyle = sky; ctx.fillRect(0, 0, LW, LH);
 
-    // arena spotlights
-    [[CENTER_X, "rgba(34,211,238,0.16)"],
-     [240, "rgba(245,166,35,0.14)"],
-     [LW - 240, "rgba(123,47,247,0.16)"]].forEach(function (s) {
+    // arena spotlights — faint WGRALGO glow on black
+    [[CENTER_X, "rgba(34,211,238,0.08)"],
+     [240, "rgba(245,166,35,0.07)"],
+     [LW - 240, "rgba(123,47,247,0.08)"]].forEach(function (s) {
       var g = ctx.createRadialGradient(s[0], 30, 10, s[0], 30, 420);
       g.addColorStop(0, s[1]); g.addColorStop(1, "transparent");
       ctx.fillStyle = g; ctx.fillRect(0, 0, LW, LH);
     });
 
     // crowd / arena wall band
-    ctx.fillStyle = "rgba(255,255,255,0.04)";
+    ctx.fillStyle = "rgba(255,255,255,0.025)";
     ctx.fillRect(0, 70, LW, 60);
     for (var i = 0; i < 60; i++) {
-      ctx.fillStyle = i % 3 === 0 ? "rgba(245,166,35,0.10)"
-                    : i % 3 === 1 ? "rgba(123,47,247,0.10)"
-                                  : "rgba(255,255,255,0.06)";
+      ctx.fillStyle = i % 3 === 0 ? "rgba(245,166,35,0.07)"
+                    : i % 3 === 1 ? "rgba(123,47,247,0.07)"
+                                  : "rgba(255,255,255,0.04)";
       ctx.beginPath();
       ctx.arc(20 + i * 21, 92 + (i % 2) * 14, 7, 0, Math.PI * 2); ctx.fill();
     }
 
     // banner
-    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.fillStyle = "rgba(255,255,255,0.04)";
     roundRect(CENTER_X - 300, 18, 600, 40, 12); ctx.fill();
-    ctx.fillStyle = "#dfe6ff";
+    ctx.fillStyle = "#e8ecff";
     ctx.font = "700 22px Segoe UI, sans-serif";
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillText("WGRALGO  TEEN  HEALTH  &  WELLNESS  SHOWDOWN", CENTER_X, 39);
@@ -510,16 +708,20 @@
   function startFall(team) {
     losingTeam = team;
     var roster = (team === 1) ? goldTeam : purpleTeam;
-    var dir = (team === 1) ? 1 : -1;
     var knotX = CENTER_X + actualRopeX;
+    var pitC = (PIT_L + PIT_R) / 2;
+    var AIR = 26;                       // ~frames airborne before hitting water
     roster.forEach(function (cfg, idx) {
       var sx = knotX + cfg.off;
+      var tx = pitC + (idx - 1) * 38;   // spread the trio across the pit
+      tx = Math.max(PIT_L + 16, Math.min(PIT_R - 16, tx));
+      var toward = (tx >= sx) ? 1 : -1;
       fallTeens.push({
         cfg: cfg,
-        x: sx, y: GROUND_Y - 50,
-        vx: dir * (3.4 + idx * 0.8),
+        x: sx, y: GROUND_Y - 50, tx: tx,
+        vx: (tx - sx) / AIR,            // aimed so they arc into the pit
         vy: -3 - idx * 0.5,
-        rot: 0, vrot: dir * (0.16 + idx * 0.05),
+        rot: 0, vrot: toward * (0.16 + idx * 0.05),
         splashed: false,
         jersey: (team === 1) ? jerseyGold : jerseyPurple
       });
@@ -539,10 +741,18 @@
         ripples.push({ x: f.x, y: WATER_TOP + 4, r: 6, alpha: 0.8 });
         ripples.push({ x: f.x, y: WATER_TOP + 4, r: 16, alpha: 0.5 });
       }
-      if (f.y > WATER_TOP + 30) {   // bob & sink slightly
-        f.vy *= 0.5; f.vx *= 0.8;
+      if (f.y > WATER_TOP + 30) {   // settle, bob & sink slightly inside the pit
+        f.vy *= 0.5;
+        f.x += (f.tx - f.x) * 0.18;            // drift to its pit slot
+        f.x = Math.max(PIT_L + 12, Math.min(PIT_R - 12, f.x));
         f.y = WATER_TOP + 30 + Math.sin(fallTimer * 0.15 + f.x) * 4;
         f.vrot *= 0.9;
+        if (!f.splashed) {                      // guarantee a splash on landing
+          f.splashed = true;
+          spawnSplash(f.x, WATER_TOP);
+          ripples.push({ x: f.x, y: WATER_TOP + 4, r: 6, alpha: 0.8 });
+          ripples.push({ x: f.x, y: WATER_TOP + 4, r: 16, alpha: 0.5 });
+        }
       }
     });
     if (fallTimer > 120 && !winnerShown) showWinner();
@@ -623,7 +833,7 @@
     if (losingTeam !== 1) {
       goldTeam.forEach(function (cfg, i) {
         var bx = knotX + cfg.off;
-        var gx = bx + 30 + (cfg.off + 118) * -0.15;
+        var gx = bx + 30 + (cfg.off + 115) * -0.15;
         var bob = Math.sin(time * 4 - i) * 3;
         drawTeen(cfg, bx, 1, jerseyGold, gx, ROPE_Y + 4 + bob,
                  goldStrain, time, null);
@@ -632,7 +842,7 @@
     if (losingTeam !== 2) {
       purpleTeam.forEach(function (cfg, i) {
         var bx = knotX + cfg.off;
-        var gx = bx - 30 + (cfg.off - 118) * -0.15;
+        var gx = bx - 30 + (cfg.off - 115) * -0.15;
         var bob = Math.sin(time * 4 - i) * 3;
         drawTeen(cfg, bx, -1, jerseyPurple, gx, ROPE_Y + 4 + bob,
                  purpleStrain, time, null);

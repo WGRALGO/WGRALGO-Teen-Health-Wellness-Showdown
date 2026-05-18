@@ -17,7 +17,7 @@ html,body{
   overflow:hidden; overscroll-behavior:none; touch-action:manipulation;
   -webkit-user-select:none; user-select:none;
   font-family:var(--font); color:#fff;
-  background:radial-gradient(circle at 50% 0%, var(--navy-3) 0%, var(--navy-2) 45%, var(--navy-1) 100%);
+  background:radial-gradient(circle at 50% 0%, #141414 0%, #070707 55%, #000 100%);
 }
 
 /* ---------- Overlays (start / how / winner) ---------- */
@@ -25,17 +25,17 @@ html,body{
   position:fixed; inset:0; z-index:50;
   display:none; align-items:center; justify-content:center;
   padding:24px;
-  background:radial-gradient(circle at 50% 20%, rgba(34,211,238,.12), transparent 60%),
-             linear-gradient(180deg, var(--navy-2), var(--navy-1));
+  background:radial-gradient(circle at 50% 20%, rgba(34,211,238,.07), transparent 60%),
+             linear-gradient(180deg, #0a0a0a, #000);
 }
 .overlay.show{ display:flex; }
 
 /* Winner overlay stays see-through so the celebratory canvas (fallen team in
    the water + falling confetti) animates behind the result panel. */
 #screen-winner{
-  background:radial-gradient(circle at 50% 40%, rgba(11,20,55,.35), rgba(11,20,55,.78));
+  background:radial-gradient(circle at 50% 40%, rgba(0,0,0,.45), rgba(0,0,0,.82));
 }
-#screen-winner .panel{ background:linear-gradient(180deg, rgba(16,22,47,.92), rgba(11,20,55,.92)); }
+#screen-winner .panel{ background:linear-gradient(180deg, rgba(14,14,16,.94), rgba(0,0,0,.94)); }
 body.winner #question-card,
 body.winner #answer-area{ display:none; }
 

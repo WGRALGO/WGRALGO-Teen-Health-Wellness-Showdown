@@ -49,6 +49,8 @@
     canvas.width = Math.max(1, Math.round(rect.width * dpr));
     canvas.height = Math.max(1, Math.round(rect.height * dpr));
     // Map logical LWxLH coordinate space onto the physical canvas (contain-fit).
+    // The stage is a fixed-height row (see styles.css) so this scale is stable
+    // across questions — the teens never resize with answer/question length.
     var scale = Math.min(canvas.width / LW, canvas.height / LH);
     var ox = (canvas.width - LW * scale) / 2;
     var oy = (canvas.height - LH * scale) / 2;
@@ -367,7 +369,7 @@
   /* Draw one teen. cfg = roster entry; gx,gy = rope grip point in scene coords.
      strain 0..1 (how hard this side is straining). fall = null or
      {x,y,rot} ragdoll override when tumbling into the water. */
-  function drawTeen(cfg, baseX, dir, jersey, gx, gy, strain, time, fall) {
+  function drawTeen(cfg, baseX, dir, jersey, gx, gy, strain, time, fall, sweatLvl) {
     var skinEdge = shade(cfg.skin, -45);
     var build = cfg.build;
     var shorts = "#222845", shortsEdge = "#12162a";
@@ -515,8 +517,8 @@
     ctx.fillStyle = grd;
     ctx.fillRect(headX - 6, headY + 8, 12, 10);       // sterno shading under chin
     drawHead(headX, headY, 15, dir, cfg, strain);
-    // sweat bead when straining hard
-    if (strain > 0.62) {
+    // sweat bead — only the losing side (being dragged) sweats
+    if (sweatLvl > 0.62) {
       ctx.fillStyle = "rgba(150,210,255,0.9)";
       ctx.beginPath();
       ctx.ellipse(headX + dir * 16, headY - 2 + (time * 60 % 16),
@@ -710,19 +712,22 @@
     var roster = (team === 1) ? goldTeam : purpleTeam;
     var knotX = CENTER_X + actualRopeX;
     var pitC = (PIT_L + PIT_R) / 2;
+    var faceDir = (team === 1) ? 1 : -1;
     var AIR = 26;                       // ~frames airborne before hitting water
     roster.forEach(function (cfg, idx) {
       var sx = knotX + cfg.off;
-      var tx = pitC + (idx - 1) * 38;   // spread the trio across the pit
-      tx = Math.max(PIT_L + 16, Math.min(PIT_R - 16, tx));
+      var slot = pitC + (idx - 1) * 50; // spaced apart, never overlapping
+      slot = Math.max(PIT_L + 30, Math.min(PIT_R - 30, slot));
+      var tx = slot;
       var toward = (tx >= sx) ? 1 : -1;
       fallTeens.push({
         cfg: cfg,
-        x: sx, y: GROUND_Y - 50, tx: tx,
+        x: sx, y: GROUND_Y - 50,
         vx: (tx - sx) / AIR,            // aimed so they arc into the pit
         vy: -3 - idx * 0.5,
         rot: 0, vrot: toward * (0.16 + idx * 0.05),
-        splashed: false,
+        slot: slot, faceDir: faceDir, phase: idx * 1.6,
+        stage: "air", splashed: false,
         jersey: (team === 1) ? jerseyGold : jerseyPurple
       });
     });
@@ -732,7 +737,14 @@
   function updateFall() {
     fallTimer++;
     fallTeens.forEach(function (f) {
-      f.vy += 0.42;                 // gravity
+      if (f.stage !== "air") {
+        // Recovered: wade to an upright huddle slot inside the pit. No
+        // physics/rotation -> never touches the pit walls, never jitters.
+        f.x += (f.slot - f.x) * 0.18;
+        if (Math.abs(f.slot - f.x) < 0.6) { f.x = f.slot; f.stage = "stand"; }
+        return;
+      }
+      f.vy += 0.42;                 // gravity (v1 airborne arc)
       f.x += f.vx; f.y += f.vy; f.rot += f.vrot;
       if (!f.splashed && f.y >= WATER_TOP - 6 &&
           f.x > PIT_L && f.x < PIT_R) {
@@ -741,13 +753,9 @@
         ripples.push({ x: f.x, y: WATER_TOP + 4, r: 6, alpha: 0.8 });
         ripples.push({ x: f.x, y: WATER_TOP + 4, r: 16, alpha: 0.5 });
       }
-      if (f.y > WATER_TOP + 30) {   // settle, bob & sink slightly inside the pit
-        f.vy *= 0.5;
-        f.x += (f.tx - f.x) * 0.18;            // drift to its pit slot
-        f.x = Math.max(PIT_L + 12, Math.min(PIT_R - 12, f.x));
-        f.y = WATER_TOP + 30 + Math.sin(fallTimer * 0.15 + f.x) * 4;
-        f.vrot *= 0.9;
-        if (!f.splashed) {                      // guarantee a splash on landing
+      if (f.y > WATER_TOP + 24) {   // touchdown -> stand up out of the sprawl
+        f.stage = "recover";
+        if (!f.splashed) {
           f.splashed = true;
           spawnSplash(f.x, WATER_TOP);
           ripples.push({ x: f.x, y: WATER_TOP + 4, r: 6, alpha: 0.8 });
@@ -828,6 +836,9 @@
     // strain: the side that is currently winning strains harder
     var goldStrain   = Math.max(0.15, Math.min(1, (-actualRopeX) / 110 + 0.45));
     var purpleStrain = Math.max(0.15, Math.min(1, (actualRopeX) / 110 + 0.45));
+    // sweat: only the side being dragged (behind) sweats
+    var goldSweat   = actualRopeX > 0 ? Math.min(1, actualRopeX / 110 + 0.45) : 0;
+    var purpleSweat = actualRopeX < 0 ? Math.min(1, -actualRopeX / 110 + 0.45) : 0;
 
     // standing teens (skip the team that is tumbling)
     if (losingTeam !== 1) {
@@ -836,7 +847,7 @@
         var gx = bx + 30 + (cfg.off + 115) * -0.15;
         var bob = Math.sin(time * 4 - i) * 3;
         drawTeen(cfg, bx, 1, jerseyGold, gx, ROPE_Y + 4 + bob,
-                 goldStrain, time, null);
+                 goldStrain, time, null, goldSweat);
       });
     }
     if (losingTeam !== 2) {
@@ -845,17 +856,38 @@
         var gx = bx - 30 + (cfg.off - 115) * -0.15;
         var bob = Math.sin(time * 4 - i) * 3;
         drawTeen(cfg, bx, -1, jerseyPurple, gx, ROPE_Y + 4 + bob,
-                 purpleStrain, time, null);
+                 purpleStrain, time, null, purpleSweat);
+      });
+    }
+
+    if (losingTeam) updateFall();
+
+    // Recovered losers stand SMALL and spaced inside the pit, drawn *before*
+    // the water so it submerges them to the chest (in the water, not on top,
+    // not piled on each other).
+    if (losingTeam) {
+      fallTeens.forEach(function (f) {
+        if (f.stage === "air") return;
+        var S = 0.5;                                  // half-size teens
+        var footY = WATER_TOP + 56 + Math.sin(time * 2 + f.phase) * 1.5;
+        ctx.save();
+        ctx.translate(f.x, footY);
+        ctx.scale(S, S);
+        ctx.translate(-f.x, -GROUND_Y);               // pin feet to footY
+        drawTeen(f.cfg, f.x, f.faceDir, f.jersey,
+                 f.x + f.faceDir * 6, GROUND_Y - 52, 0, time, null, 0);
+        ctx.restore();
       });
     }
 
     drawWater(time);
 
+    // Airborne tumble stays on top of the water (visible splash).
     if (losingTeam) {
-      updateFall();
       fallTeens.forEach(function (f) {
+        if (f.stage !== "air") return;
         drawTeen(f.cfg, 0, 1, f.jersey, 0, 0, 0, time,
-                 { x: f.x, y: f.y, rot: f.rot });
+                 { x: f.x, y: f.y, rot: f.rot }, 0);
       });
     }
     updateSplashes();
@@ -883,9 +915,9 @@
     if (w !== _lastW || h !== _lastH) {
       canvas.width = w; canvas.height = h; _lastW = w; _lastH = h;
     }
-    var scale = Math.min(canvas.width / LW, canvas.height / LH);
-    var ox = (canvas.width - LW * scale) / 2;
-    var oy = (canvas.height - LH * scale) / 2;
+    var scale = canvas.width / LW;                 // width-locked (see resizeCanvas)
+    var ox = 0;
+    var oy = canvas.height - LH * scale;           // bottom-anchored
     ctx.setTransform(scale, 0, 0, scale, ox, oy);
   }
 

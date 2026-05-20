@@ -121,11 +121,12 @@ body.winner #answer-area{ display:none; }
 }
 
 #question-card{
-  /* Fixed height sized to fit the longest question (~298 chars at 22px font
-     wraps to 3 lines). Never grows or shrinks per question -> the game stage
-     and answer area below stay locked, so the teen characters never resize. */
+  /* Fixed height sized to fit the longest question (~298 chars at the
+     v1.0.2 question font, 28px). Wraps to ~4 lines and never grows or
+     shrinks per question -> the game stage and answer area below stay
+     locked, so the teen characters never resize. */
   flex:0 0 auto;
-  height:130px;
+  height:180px;
   display:flex; align-items:center; justify-content:center;
   overflow:hidden;
   background:linear-gradient(180deg,#ffffff,#eef2ff);
@@ -141,8 +142,8 @@ body.winner #answer-area{ display:none; }
   opacity:.75;
 }
 #question-text{
-  font-size:22px; font-weight:800; line-height:1.32;
-  text-align:center; max-width:1180px; margin:0 auto;
+  font-size:28px; font-weight:800; line-height:1.32;
+  text-align:center; max-width:1100px; margin:0 auto;
 }
 
 #stage{ flex:1 1 auto; min-height:0; display:flex; }
@@ -165,12 +166,12 @@ body.winner #answer-area{ display:none; }
 .ans-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .ans-btn{
   font-family:var(--font); font-weight:700;
-  font-size:15px; line-height:1.24;
-  /* Fixed height sized to fit the longest answer (~168 chars at 14-15px font
-     wraps to ~5 lines). Combined with the auto-shrink in game.js this fits
-     every answer without ever resizing the box. The whole button is the
-     touch target (pointerup handler in game.js). */
-  height:110px;
+  font-size:18px; line-height:1.24;
+  /* Fixed height sized to fit the longest answer (~168 chars at the
+     v1.0.2 answer font, 18px). Wraps to ~6 lines and combined with the
+     auto-shrink in game.js, every answer fits without ever resizing the
+     box. The whole button is the touch target (pointerup handler). */
+  height:155px;
   border:none; border-radius:14px; cursor:pointer; color:#fff;
   padding:8px 12px;
   display:flex; align-items:center; justify-content:center; text-align:center;

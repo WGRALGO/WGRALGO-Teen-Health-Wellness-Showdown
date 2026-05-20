@@ -2,6 +2,21 @@
 
 All notable changes to WGRALGO Teen Health & Wellness Showdown are documented here.
 
+## [1.0.4] — 2026-05-19
+
+- Restored larger question font (28px) and answer font (18px) from v1.0.2
+- Question card grown to 180px and answer buttons grown to 155px so the
+  longest question (298 chars) and longest answer (168 chars) in the bank
+  both fit without clipping at the larger fonts
+- Teen characters made smaller and raised higher on screen to make room
+  for the larger text boxes: scene height shrunk (LH 460 -> 340) and the
+  ground, rope and water lines all moved up to match
+- Removed the polka-dot crowd band from the arena background — it was
+  visual noise that competed with the players
+- Kept the centered banner and the gold/teal/purple tension meter
+  ("status bar") that shows which side is currently winning
+- Bumped `versionCode` to 5, `versionName` to "1.0.4"
+
 ## [1.0.3] — 2026-05-19
 
 - Universal tablet fit: game now uses a fixed 1280x900 design surface that

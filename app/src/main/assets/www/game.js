@@ -11,13 +11,17 @@
 (function () {
   "use strict";
 
-  /* ---------- Logical scene dimensions (canvas is DPR-scaled to fit) -------- */
-  var LW = 1280, LH = 460;
+  /* ---------- Logical scene dimensions (canvas is DPR-scaled to fit) --------
+     v1.0.3 compact layout: bigger question + answer boxes leave the stage
+     shorter, so the scene was raised + shortened (LH 460->340, ground/rope/
+     water moved up). Net effect: the teens are smaller and sit higher on
+     screen, leaving more room for the larger text boxes above and below. */
+  var LW = 1280, LH = 340;
   var CENTER_X = LW / 2;
-  var GROUND_Y = 372;          // top of the platforms / where feet rest
-  var WATER_TOP = 366;         // water surface inside the central pit
+  var GROUND_Y = 250;          // top of the platforms / where feet rest
+  var WATER_TOP = 244;         // water surface inside the central pit
   var PIT_L = 560, PIT_R = 720;// central water pit horizontal bounds
-  var ROPE_Y = 300;            // resting rope height (hand grip line)
+  var ROPE_Y = 190;            // resting rope height (hand grip line)
 
   /* ---------- Game state --------------------------------------------------- */
   var questions = (typeof QUESTIONS !== "undefined") ? QUESTIONS.slice() : [];
@@ -132,8 +136,8 @@
     // Fit text to the fixed boxes (boxes never resize; only font may shrink
     // on edge-case long questions/answers). Defer so layout settles first.
     requestAnimationFrame(function () {
-      autoFitText(qText, 22, 15);
-      allButtons().forEach(function (btn) { autoFitText(btn, 15, 11); });
+      autoFitText(qText, 28, 18);
+      allButtons().forEach(function (btn) { autoFitText(btn, 18, 13); });
     });
   }
 
@@ -599,16 +603,8 @@
       ctx.fillStyle = g; ctx.fillRect(0, 0, LW, LH);
     });
 
-    // crowd / arena wall band
-    ctx.fillStyle = "rgba(255,255,255,0.025)";
-    ctx.fillRect(0, 70, LW, 60);
-    for (var i = 0; i < 60; i++) {
-      ctx.fillStyle = i % 3 === 0 ? "rgba(245,166,35,0.07)"
-                    : i % 3 === 1 ? "rgba(123,47,247,0.07)"
-                                  : "rgba(255,255,255,0.04)";
-      ctx.beginPath();
-      ctx.arc(20 + i * 21, 92 + (i % 2) * 14, 7, 0, Math.PI * 2); ctx.fill();
-    }
+    // (v1.0.3) crowd polka-dot band removed — unused visual noise. The
+    // arena banner + tension meter below are kept as the only HUD elements.
 
     // banner
     ctx.fillStyle = "rgba(255,255,255,0.04)";

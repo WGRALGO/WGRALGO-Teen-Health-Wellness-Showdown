@@ -48,34 +48,40 @@
   </div>
 </section>
 
-<!-- ===================== GAME ===================== -->
+<!-- ===================== GAME =====================
+     .game-fit is a fixed-size design surface (1280x900). JS scales it via
+     CSS transform so the whole layout fits any tablet without changing the
+     internal proportions: characters, question card and answer boxes stay
+     the same size relative to each other on every screen. -->
 <main id="screen-game">
-  <div id="question-card">
-    <div id="question-progress"></div>
-    <div id="question-text">Loading&hellip;</div>
-  </div>
-
-  <div id="stage">
-    <canvas id="gameCanvas"></canvas>
-  </div>
-
-  <div id="answer-area">
-    <div class="team-panel gold-panel" id="panel1">
-      <div class="team-tag">TEAM GOLD</div>
-      <div class="ans-grid">
-        <button class="ans-btn gold-btn" data-team="1" data-choice="0"></button>
-        <button class="ans-btn gold-btn" data-team="1" data-choice="1"></button>
-        <button class="ans-btn gold-btn" data-team="1" data-choice="2"></button>
-        <button class="ans-btn gold-btn" data-team="1" data-choice="3"></button>
-      </div>
+  <div class="game-fit" id="game-fit">
+    <div id="question-card">
+      <div id="question-progress"></div>
+      <div id="question-text">Loading&hellip;</div>
     </div>
-    <div class="team-panel purple-panel" id="panel2">
-      <div class="team-tag">TEAM PURPLE</div>
-      <div class="ans-grid">
-        <button class="ans-btn purple-btn" data-team="2" data-choice="0"></button>
-        <button class="ans-btn purple-btn" data-team="2" data-choice="1"></button>
-        <button class="ans-btn purple-btn" data-team="2" data-choice="2"></button>
-        <button class="ans-btn purple-btn" data-team="2" data-choice="3"></button>
+
+    <div id="stage">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div id="answer-area">
+      <div class="team-panel gold-panel" id="panel1">
+        <div class="team-tag">TEAM GOLD</div>
+        <div class="ans-grid">
+          <button class="ans-btn gold-btn" data-team="1" data-choice="0"></button>
+          <button class="ans-btn gold-btn" data-team="1" data-choice="1"></button>
+          <button class="ans-btn gold-btn" data-team="1" data-choice="2"></button>
+          <button class="ans-btn gold-btn" data-team="1" data-choice="3"></button>
+        </div>
+      </div>
+      <div class="team-panel purple-panel" id="panel2">
+        <div class="team-tag">TEAM PURPLE</div>
+        <div class="ans-grid">
+          <button class="ans-btn purple-btn" data-team="2" data-choice="0"></button>
+          <button class="ans-btn purple-btn" data-team="2" data-choice="1"></button>
+          <button class="ans-btn purple-btn" data-team="2" data-choice="2"></button>
+          <button class="ans-btn purple-btn" data-team="2" data-choice="3"></button>
+        </div>
       </div>
     </div>
   </div>

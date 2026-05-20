@@ -58,6 +58,25 @@
   }
   window.addEventListener("resize", resizeCanvas);
 
+  /* ---------- Scale-to-fit design surface ---------------------------------
+     The game uses a fixed 1280x900 design canvas (.game-fit in styles.css).
+     Here we apply a uniform CSS scale so it fills any tablet without changing
+     internal proportions. Characters, boxes and fonts stay pixel-identical
+     relative to each other on every screen — only the global scale changes. */
+  var DESIGN_W = 1280, DESIGN_H = 900;
+  function fitGameScreen() {
+    var fit = document.getElementById("game-fit");
+    if (!fit) return;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var s = Math.min(vw / DESIGN_W, vh / DESIGN_H);
+    var w = DESIGN_W * s, h = DESIGN_H * s;
+    var tx = Math.round((vw - w) / 2);
+    var ty = Math.round((vh - h) / 2);
+    fit.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + s + ")";
+  }
+  window.addEventListener("resize", fitGameScreen);
+  window.addEventListener("orientationchange", fitGameScreen);
+
   /* ---------- Question handling ------------------------------------------- */
   function shuffleQuiz() {
     for (var i = questions.length - 1; i > 0; i--) {
@@ -82,6 +101,19 @@
     return Array.prototype.slice.call(document.querySelectorAll(".ans-btn"));
   }
 
+  /* Shrink text within a fixed-size element until it fits without clipping.
+     Box stays the same size on every question; only the font shrinks if a
+     particular question/answer is unusually long. Min floor keeps it legible. */
+  function autoFitText(el, baseSize, minSize) {
+    el.style.fontSize = baseSize + "px";
+    var size = baseSize;
+    // scrollHeight > clientHeight means the text is overflowing vertically.
+    while (size > minSize && el.scrollHeight > el.clientHeight) {
+      size -= 1;
+      el.style.fontSize = size + "px";
+    }
+  }
+
   function loadQuestion() {
     if (currentQuestionIndex >= questions.length) {
       currentQuestionIndex = 0;
@@ -97,6 +129,12 @@
     });
     p1Answered = false;
     p2Answered = false;
+    // Fit text to the fixed boxes (boxes never resize; only font may shrink
+    // on edge-case long questions/answers). Defer so layout settles first.
+    requestAnimationFrame(function () {
+      autoFitText(qText, 22, 15);
+      allButtons().forEach(function (btn) { autoFitText(btn, 15, 11); });
+    });
   }
 
   function flashButton(btn, cls) {
@@ -915,9 +953,12 @@
     if (w !== _lastW || h !== _lastH) {
       canvas.width = w; canvas.height = h; _lastW = w; _lastH = h;
     }
-    var scale = canvas.width / LW;                 // width-locked (see resizeCanvas)
-    var ox = 0;
-    var oy = canvas.height - LH * scale;           // bottom-anchored
+    // Contain-fit: scale so the whole LWxLH scene fits inside the canvas
+    // without clipping the characters' heads or feet. Bottom-anchored so feet
+    // rest near the bottom of the stage on every tablet.
+    var scale = Math.min(canvas.width / LW, canvas.height / LH);
+    var ox = (canvas.width - LW * scale) / 2;
+    var oy = canvas.height - LH * scale;
     ctx.setTransform(scale, 0, 0, scale, ox, oy);
   }
 
@@ -960,13 +1001,28 @@
     show("screen-winner");
   }
 
-  /* ---------- Input -------------------------------------------------------- */
-  allButtons().forEach(function (btn) {
-    btn.addEventListener("click", function () {
+  /* ---------- Input --------------------------------------------------------
+     The whole answer box is the touch target. We listen on `pointerup` AND
+     `click` so the tap registers on the first touch even when the WebView
+     would otherwise swallow a click (e.g. tiny finger drift, slow click
+     synthesis on some Android builds). A short debounce flag prevents the
+     same tap from firing twice via both paths. */
+  function attachAnswerHandlers(btn) {
+    var lockedUntil = 0;
+    function fire(e) {
+      var now = Date.now();
+      if (now < lockedUntil) return;            // already fired for this tap
+      lockedUntil = now + 350;
+      if (e && e.preventDefault) e.preventDefault();
       checkAnswer(parseInt(btn.getAttribute("data-choice"), 10),
                   parseInt(btn.getAttribute("data-team"), 10), btn);
-    });
-  });
+    }
+    // pointerup fires for touch + mouse + pen on modern Android WebViews.
+    btn.addEventListener("pointerup", fire);
+    // click fallback covers ancient WebViews without Pointer Events.
+    btn.addEventListener("click", fire);
+  }
+  allButtons().forEach(attachAnswerHandlers);
 
   $("btn-start").addEventListener("click", startGame);
   $("btn-restart").addEventListener("click", startGame);
@@ -1009,6 +1065,7 @@
   };
 
   /* ---------- Boot --------------------------------------------------------- */
+  fitGameScreen();
   resizeCanvas();
   shuffleQuiz();
   loadQuestion();

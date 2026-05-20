@@ -101,19 +101,33 @@ body.winner #answer-area{ display:none; }
 .winner-panel .trophy{ font-size:clamp(64px,12vw,120px); line-height:1;
   filter:drop-shadow(0 8px 18px rgba(245,166,35,.5)); margin-bottom:6px; }
 
-/* ---------- Game screen ---------- */
+/* ---------- Game screen ----------
+   Fixed-size 1280x900 "design canvas" (.game-fit). JS sets a CSS
+   `transform: scale(s)` on it so the whole layout uniformly scales to fit
+   the viewport without changing internal proportions. This guarantees the
+   characters, question card and answer boxes look identical on every tablet
+   from 7" up — only the overall scale changes. */
 #screen-game{
-  position:fixed; inset:0; display:flex; flex-direction:column;
+  position:fixed; inset:0; overflow:hidden;
+  background:radial-gradient(circle at 50% 0%, #141414 0%, #070707 55%, #000 100%);
+}
+.game-fit{
+  position:absolute; top:0; left:0;
+  width:1280px; height:900px;
+  transform-origin:top left;
+  display:flex; flex-direction:column;
   padding:14px 18px 18px; gap:12px;
+  will-change:transform;
 }
 
 #question-card{
-  /* Fixed height: a long question scrolls inside the card instead of growing
-     it, so the game stage below keeps a constant size (teens never resize). */
+  /* Fixed height sized to fit the longest question (~298 chars at 22px font
+     wraps to 3 lines). Never grows or shrinks per question -> the game stage
+     and answer area below stay locked, so the teen characters never resize. */
   flex:0 0 auto;
-  height:clamp(72px,13vh,118px);
+  height:130px;
   display:flex; align-items:center; justify-content:center;
-  overflow:auto;
+  overflow:hidden;
   background:linear-gradient(180deg,#ffffff,#eef2ff);
   color:var(--ink);
   border-radius:20px; padding:14px 26px;
@@ -127,8 +141,8 @@ body.winner #answer-area{ display:none; }
   opacity:.75;
 }
 #question-text{
-  font-size:clamp(17px,2.4vw,28px); font-weight:800; line-height:1.34;
-  text-align:center; max-width:1100px; margin:0 auto;
+  font-size:22px; font-weight:800; line-height:1.32;
+  text-align:center; max-width:1180px; margin:0 auto;
 }
 
 #stage{ flex:1 1 auto; min-height:0; display:flex; }
@@ -144,21 +158,24 @@ body.winner #answer-area{ display:none; }
   border:1px solid rgba(255,255,255,.12); }
 .gold-panel{ background:linear-gradient(180deg, rgba(245,166,35,.14), rgba(245,166,35,.05)); }
 .purple-panel{ background:linear-gradient(180deg, rgba(123,47,247,.16), rgba(123,47,247,.05)); }
-.team-tag{ font-weight:900; letter-spacing:.16em; font-size:14px; margin:2px 4px 10px; }
+.team-tag{ font-weight:900; letter-spacing:.16em; font-size:14px; margin:2px 4px 8px; }
 .gold-panel .team-tag{ color:var(--gold-1); }
 .purple-panel .team-tag{ color:var(--purple-1); }
 
 .ans-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .ans-btn{
   font-family:var(--font); font-weight:700;
-  font-size:clamp(13px,1.5vw,18px); line-height:1.24;
-  /* Fixed height regardless of answer length -> the answer area (and the game
-     stage above it) never changes size, so the teens never scale. */
-  height:clamp(58px,9vh,104px);
+  font-size:15px; line-height:1.24;
+  /* Fixed height sized to fit the longest answer (~168 chars at 14-15px font
+     wraps to ~5 lines). Combined with the auto-shrink in game.js this fits
+     every answer without ever resizing the box. The whole button is the
+     touch target (pointerup handler in game.js). */
+  height:110px;
   border:none; border-radius:14px; cursor:pointer; color:#fff;
   padding:8px 12px;
   display:flex; align-items:center; justify-content:center; text-align:center;
-  overflow:hidden; word-break:break-word; hyphens:auto;
+  overflow:hidden; word-break:break-word; overflow-wrap:anywhere; hyphens:auto;
+  touch-action:manipulation;
   transition:transform .07s ease, filter .15s ease, box-shadow .15s ease, opacity .2s ease;
 }
 .ans-btn:active{ transform:scale(.97); }
@@ -190,15 +207,7 @@ body.winner #answer-area{ display:none; }
   40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(4px)}
 }
 
-/* ---------- Portrait / phone fallback ---------- */
-@media (max-aspect-ratio:1/1){
-  #answer-area{ flex-direction:column; gap:10px; }
-  .ans-grid{ gap:8px; }
-  .ans-btn{ height:52px; font-size:14px; }
-  #question-text{ font-size:17px; }
-}
-@media (max-height:430px){
-  #screen-game{ padding:8px 12px 10px; gap:8px; }
-  #question-card{ height:clamp(56px,16vh,84px); padding:8px 18px; }
-  .ans-btn{ height:48px; }
-}
+/* No portrait / small-screen overrides: the .game-fit design surface uses a
+   uniform CSS transform: scale() applied by game.js (fitGameScreen) to fit
+   every viewport. The internal layout (boxes, character sizes, fonts) stays
+   pixel-identical at every tablet size — only the global scale changes. */

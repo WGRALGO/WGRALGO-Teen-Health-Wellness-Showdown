@@ -3,11 +3,11 @@
 A free, fully-offline two-player tug-of-war quiz game for Android tablets and
 large touchscreens.
 
-**Latest release: [v1.0.4](https://github.com/WGRALGO/WGRALGO-Teen-Health-Wellness-Showdown/releases/tag/v1.0.4)**
-— larger 28px question + 18px answer fonts (restored from v1.0.2), boxes
-grown to fit the longest entry in the bank without clipping, teens shrunk
-and raised on screen, polka-dot crowd band removed; the side-winning
-status bar kept. Download the signed APK from the
+**Latest release: [v1.0.5](https://github.com/WGRALGO/WGRALGO-Teen-Health-Wellness-Showdown/releases/tag/v1.0.5)**
+— arena title moved into the question card top-left (gold), tension
+meter ("status bar" showing which side is winning) moved out of the
+canvas so it no longer overlaps the players, scene further compacted to
+fill the stage width with almost no letterbox. Download the signed APK from the
 [Releases page](https://github.com/WGRALGO/WGRALGO-Teen-Health-Wellness-Showdown/releases).
 
 ## Description
@@ -31,7 +31,7 @@ tug-of-war format.
 - Two-player / two-team touchscreen competition
 - Tug-of-war battle mechanic with an animated, textured rope
 - Professional tablet-first game interface
-- Universal tablet fit (since v1.0.4): a fixed 1280×900 design surface scales
+- Universal tablet fit (since v1.0.5): a fixed 1280×900 design surface scales
   uniformly to any tablet via CSS transform, so character size, question card
   and answer boxes stay pixel-identical from 7" tablets up
 - Large, touch-friendly answer buttons sized to fit the longest entry in the
@@ -128,9 +128,9 @@ The project also opens directly in Android Studio (File → Open → this folder
 
 Easiest path: grab the prebuilt signed APK from the
 [latest release](https://github.com/WGRALGO/WGRALGO-Teen-Health-Wellness-Showdown/releases/latest)
-(`WGRALGO-TeenHealth-v1.0.4.apk`, 178 KB).
+(`WGRALGO-TeenHealth-v1.0.5.apk`, 178 KB).
 
-1. Copy the APK to the device, or run `adb install -r WGRALGO-TeenHealth-v1.0.4.apk`.
+1. Copy the APK to the device, or run `adb install -r WGRALGO-TeenHealth-v1.0.5.apk`.
 2. On the device, enable **Install unknown apps** for your file manager.
 3. Tap the APK to install.
 4. Launch **WGRALGO Teen Health & Wellness Showdown**.
@@ -154,8 +154,8 @@ desktop testing but is intentionally absent from the on-screen UI.
 
 ## Version History
 
-See [CHANGELOG.md](CHANGELOG.md) for the full history. Current: **v1.0.4**
-(`versionCode 5`).
+See [CHANGELOG.md](CHANGELOG.md) for the full history. Current: **v1.0.5**
+(`versionCode 6`).
 
 ## Roadmap
 

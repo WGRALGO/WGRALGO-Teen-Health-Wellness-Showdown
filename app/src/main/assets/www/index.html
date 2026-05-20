@@ -56,8 +56,19 @@
 <main id="screen-game">
   <div class="game-fit" id="game-fit">
     <div id="question-card">
-      <div id="question-progress"></div>
+      <div id="question-header">
+        <div id="question-title">WGRALGO TEEN HEALTH &amp; WELLNESS SHOWDOWN</div>
+        <div id="question-progress"></div>
+      </div>
       <div id="question-text">Loading&hellip;</div>
+    </div>
+
+    <!-- Tension meter ("status bar") moved out of the canvas so it never
+         overlaps the players. JS updates the fill width + indicator
+         position each frame (see updateStatusBar in game.js). -->
+    <div id="status-bar" aria-hidden="true">
+      <div id="status-fill"></div>
+      <div id="status-indicator"></div>
     </div>
 
     <div id="stage">

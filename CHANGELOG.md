@@ -2,6 +2,22 @@
 
 All notable changes to WGRALGO Teen Health & Wellness Showdown are documented here.
 
+## [1.0.5] — 2026-05-19
+
+- Moved the "WGRALGO TEEN HEALTH & WELLNESS SHOWDOWN" title out of the
+  canvas and into the top-left of the question card (opposite the
+  "QUESTION X" progress label on the right) — title is now TEAM GOLD
+  coloured
+- Moved the tension meter ("status bar" that shows which side is winning)
+  out of the canvas to its own HTML element directly under the question
+  card, so it never overlaps the players' heads anymore
+- Removed the canvas banner draw and the canvas tension-meter draw; the
+  arena scene now only contains the platforms, water, rope and teens
+- Compacted the scene further (LH 340 -> 280, GROUND_Y 250 -> 220, ROPE_Y
+  190 -> 160, WATER_TOP 244 -> 214) so the stage fills the design width
+  with almost no letterbox on tablets
+- Bumped `versionCode` to 6, `versionName` to "1.0.5"
+
 ## [1.0.4] — 2026-05-19
 
 - Restored larger question font (28px) and answer font (18px) from v1.0.2

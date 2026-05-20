@@ -37,6 +37,7 @@ html,body{
 }
 #screen-winner .panel{ background:linear-gradient(180deg, rgba(14,14,16,.94), rgba(0,0,0,.94)); }
 body.winner #question-card,
+body.winner #status-bar,
 body.winner #answer-area{ display:none; }
 
 .panel{
@@ -127,23 +128,65 @@ body.winner #answer-area{ display:none; }
      locked, so the teen characters never resize. */
   flex:0 0 auto;
   height:180px;
-  display:flex; align-items:center; justify-content:center;
+  display:flex; flex-direction:column;
   overflow:hidden;
   background:linear-gradient(180deg,#ffffff,#eef2ff);
   color:var(--ink);
-  border-radius:20px; padding:14px 26px;
+  border-radius:20px; padding:8px 26px 12px;
   border:2px solid rgba(123,47,247,.18);
   box-shadow:0 14px 30px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.8);
   position:relative;
 }
+#question-header{
+  flex:0 0 auto;
+  display:flex; justify-content:space-between; align-items:center;
+  height:18px;
+}
+#question-title{
+  font-size:13px; font-weight:800; letter-spacing:.18em;
+  /* Gold (TEAM GOLD bright) — matches the v1.0.4 banner colour. */
+  color:var(--gold-1);
+  text-shadow:0 1px 0 rgba(0,0,0,.06);
+}
 #question-progress{
-  position:absolute; top:10px; right:18px;
   font-size:13px; font-weight:800; color:#7b2ff7; letter-spacing:.08em;
-  opacity:.75;
+  opacity:.85;
 }
 #question-text{
+  flex:1 1 auto;
+  display:flex; align-items:center; justify-content:center;
   font-size:28px; font-weight:800; line-height:1.32;
   text-align:center; max-width:1100px; margin:0 auto;
+}
+
+/* Tension meter "status bar" between the question card and the game stage.
+   JS sets `left` + `width` on #status-fill and `left` on #status-indicator
+   each frame (see updateStatusBar in game.js). Was previously drawn inside
+   the canvas at y=64-76, where it overlapped the players' heads after the
+   v1.0.4 scene compaction. */
+#status-bar{
+  flex:0 0 auto;
+  position:relative;
+  width:480px; height:14px;
+  margin:0 auto;
+  background:rgba(255,255,255,.10);
+  border-radius:7px;
+  overflow:visible;
+}
+#status-fill{
+  position:absolute; top:0; bottom:0;
+  left:50%; width:0;
+  background:linear-gradient(90deg,#F5A623 0%,#22D3EE 50%,#7B2FF7 100%);
+  border-radius:7px;
+}
+#status-indicator{
+  position:absolute; top:-3px; left:50%;
+  width:20px; height:20px;
+  background:#fff;
+  border:2px solid rgba(0,0,0,.35);
+  border-radius:50%;
+  transform:translateX(-50%);
+  box-shadow:0 2px 6px rgba(0,0,0,.45);
 }
 
 #stage{ flex:1 1 auto; min-height:0; display:flex; }

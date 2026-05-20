@@ -12,16 +12,16 @@
   "use strict";
 
   /* ---------- Logical scene dimensions (canvas is DPR-scaled to fit) --------
-     v1.0.3 compact layout: bigger question + answer boxes leave the stage
-     shorter, so the scene was raised + shortened (LH 460->340, ground/rope/
-     water moved up). Net effect: the teens are smaller and sit higher on
-     screen, leaving more room for the larger text boxes above and below. */
-  var LW = 1280, LH = 340;
+     v1.0.5 further compacted: banner + tension meter moved out of the canvas
+     into HTML (above the stage), freeing the canvas top. Characters raised
+     again to make the stage almost full-width on tablets (less letterbox).
+     LH 340 -> 280, ground/rope/water moved up to match. */
+  var LW = 1280, LH = 280;
   var CENTER_X = LW / 2;
-  var GROUND_Y = 250;          // top of the platforms / where feet rest
-  var WATER_TOP = 244;         // water surface inside the central pit
+  var GROUND_Y = 220;          // top of the platforms / where feet rest
+  var WATER_TOP = 214;         // water surface inside the central pit
   var PIT_L = 560, PIT_R = 720;// central water pit horizontal bounds
-  var ROPE_Y = 190;            // resting rope height (hand grip line)
+  var ROPE_Y = 160;            // resting rope height (hand grip line)
 
   /* ---------- Game state --------------------------------------------------- */
   var questions = (typeof QUESTIONS !== "undefined") ? QUESTIONS.slice() : [];
@@ -603,16 +603,9 @@
       ctx.fillStyle = g; ctx.fillRect(0, 0, LW, LH);
     });
 
-    // (v1.0.3) crowd polka-dot band removed — unused visual noise. The
-    // arena banner + tension meter below are kept as the only HUD elements.
-
-    // banner
-    ctx.fillStyle = "rgba(255,255,255,0.04)";
-    roundRect(CENTER_X - 300, 18, 600, 40, 12); ctx.fill();
-    ctx.fillStyle = "#e8ecff";
-    ctx.font = "700 22px Segoe UI, sans-serif";
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText("WGRALGO  TEEN  HEALTH  &  WELLNESS  SHOWDOWN", CENTER_X, 39);
+    // (v1.0.3) crowd polka-dot band removed — unused visual noise.
+    // (v1.0.5) arena banner moved to HTML (#question-title, top-left of the
+    // question card, in TEAM GOLD colour). Canvas now only draws the scene.
 
     // Platforms (gold left, purple right) with edge lip toward the pit
     platform(0, PIT_L, "#3a2f12", "#5a4a1d", "#FFC93C");
@@ -720,21 +713,28 @@
     ctx.strokeStyle = "#3a2360"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(knotX, ROPE_Y - 13);
     ctx.lineTo(knotX, ROPE_Y - 52); ctx.stroke();
+    // Tension meter ("status bar") moved out of the canvas in v1.0.5 —
+    // see #status-bar in index.html, updated by updateStatusBar() below.
+  }
 
-    // tension meter
-    var pct = actualRopeX / 110;                       // -1..1
-    ctx.fillStyle = "rgba(255,255,255,0.10)";
-    roundRect(CENTER_X - 180, 64, 360, 12, 6); ctx.fill();
-    var mx = CENTER_X + pct * 178;
-    var mg = ctx.createLinearGradient(CENTER_X - 180, 0, CENTER_X + 180, 0);
-    mg.addColorStop(0, "#F5A623"); mg.addColorStop(0.5, "#22D3EE");
-    mg.addColorStop(1, "#7B2FF7");
-    ctx.fillStyle = mg;
-    if (pct < 0) roundRect(mx, 64, CENTER_X - mx, 12, 6);
-    else roundRect(CENTER_X, 64, mx - CENTER_X, 12, 6);
-    ctx.fill();
-    ctx.fillStyle = "#fff";
-    ctx.beginPath(); ctx.arc(mx, 70, 7, 0, Math.PI * 2); ctx.fill();
+  /* HTML tension meter: positions the indicator + fills outward from the
+     centre in the direction of the leading team. Mirrors what the canvas
+     meter did before v1.0.5, but never overlaps the players. */
+  var _sbFill, _sbInd;
+  function updateStatusBar() {
+    if (!_sbFill) _sbFill = document.getElementById("status-fill");
+    if (!_sbInd)  _sbInd  = document.getElementById("status-indicator");
+    if (!_sbFill || !_sbInd) return;
+    var pct = Math.max(-1, Math.min(1, actualRopeX / 110)); // -1..1
+    var indPct = 50 + pct * 50;                              // 0..100
+    _sbInd.style.left = indPct + "%";
+    if (pct < 0) {
+      _sbFill.style.left  = indPct + "%";
+      _sbFill.style.width = (50 - indPct) + "%";
+    } else {
+      _sbFill.style.left  = "50%";
+      _sbFill.style.width = (indPct - 50) + "%";
+    }
   }
 
   /* ---------- Fall sequence ----------------------------------------------- */
@@ -936,6 +936,7 @@
       else if (actualRopeX >= 110) { gameActive = false; startFall(1); }
     }
 
+    updateStatusBar();
     requestAnimationFrame(frame);
   }
 

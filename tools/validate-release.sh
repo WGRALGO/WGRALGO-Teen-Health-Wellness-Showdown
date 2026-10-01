@@ -65,6 +65,11 @@ grep -Eqi 'gofundme\.com|facebook\.com|instagram\.com|tiktok\.com|youtube\.com|l
 grep -Eqi 'google-analytics|googletagmanager|gtag\(|firebase|admob' $IDX && bad "analytics/ads reference" || ok "no analytics or ads"
 grep -Eq 'localStorage|sessionStorage|indexedDB|document\.cookie' $IDX && bad "app stores data on device" || ok "no on-device storage"
 
+echo "== Name and orientation =="
+grep -q '<string name="app_name">WGRALGO' app/src/main/res/values/strings.xml && bad "app name under the icon starts with WGRALGO" || ok "app name under the icon has no WGRALGO prefix"
+grep -q 'screenOrientation="sensorLandscape"' app/src/main/AndroidManifest.xml && ok "landscape only (optimized for tablets in landscape)" || bad "not locked to landscape"
+grep -q 'WGRALGO-[A-Za-z]*-v' .github/workflows/release.yml && ok "APK named WGRALGO-<AppName>-v<version>.apk" || bad "APK name not uniform"
+
 if [ "${1:-}" != "" ] && [ -f "${1:-}" ]; then
   APK="$1"
   echo "== APK: $APK =="

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="launch_bg">#0B1437</color>
-    <color name="ic_bg">#162256</color>
+    <!-- Black everywhere so the logo's black background blends in: no box
+         around the launcher icon and no flash between splash and game. -->
+    <color name="launch_bg">#000000</color>
+    <color name="ic_bg">#000000</color>
 </resources>

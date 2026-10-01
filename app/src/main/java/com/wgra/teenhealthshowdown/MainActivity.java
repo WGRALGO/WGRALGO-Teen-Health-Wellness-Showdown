@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
         webView.getSettings().setMediaPlaybackRequiresUserGesture(true);
         webView.getSettings().setMixedContentMode(
                 WebSettings.MIXED_CONTENT_NEVER_ALLOW);
-        webView.setBackgroundColor(0xFF0B1437);
+        webView.setBackgroundColor(0xFF000000);
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
         webView.setVerticalScrollBarEnabled(false);
         webView.setHorizontalScrollBarEnabled(false);

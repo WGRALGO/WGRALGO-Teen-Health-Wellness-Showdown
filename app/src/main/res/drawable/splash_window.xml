@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launch screen for Android 7–11 (and the window background behind the
+     game on every version): the full logo, large, centered on black. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/launch_bg" />
+    <item
+        android:width="320dp"
+        android:height="320dp"
+        android:gravity="center"
+        android:drawable="@drawable/splash_logo" />
+</layer-list>

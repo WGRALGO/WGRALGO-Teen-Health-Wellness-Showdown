@@ -2,6 +2,34 @@
 
 All notable changes to WGRALGO Teen Health & Wellness Showdown are documented here.
 
+## [1.1.0] — 2026-10-01
+
+- New game from the website version (single `index.html` replaces
+  `game.js`, `questions.js`, and `styles.css`):
+  - setup screen: team names, topic picker, ages 10–12 or 13–18, game length,
+    one game or best of 3, sound on/off
+  - new 150-question bank for ages 10–12 alongside the 300-question teen bank
+  - 20-second question timer (25 for ages 10–12), 5-second steal after a wrong
+    answer, skipped questions come back later, no repeats until the topic pool
+    is used up
+  - each side sees the answers in a different order
+  - pause / resume / restart, generated sound effects, best-of-3 match dots
+  - answers count on first touch (`pointerdown`)
+- App shell: the game fills the whole screen; website-only parts removed
+  (social links, GoFundMe bar, page heading, full-screen buttons); tips for
+  teachers and crisis lines moved into How to Play; Content-Security-Policy added
+- Android back button: pauses / resumes the game, closes How to Play, returns
+  from the winner screen; asks before exiting from the setup screen
+- New logo: big on the launcher icon (adaptive and legacy, black background,
+  no white box), the Android 12+ system splash, the Android 7–11 launch screen,
+  an in-app splash, and the setup screen
+- Window and WebView background changed from navy to black so splash → game
+  has no colour flash
+- **New release signing key** — uninstall older versions before installing
+- Added GitHub Actions: debug build on every push and a signed release workflow
+- Added `tools/validate-release.sh`
+- Bumped `versionCode` to 7, `versionName` to "1.1.0"
+
 ## [1.0.5] — 2026-05-19
 
 - Moved the "WGRALGO TEEN HEALTH & WELLNESS SHOWDOWN" title out of the

@@ -3,11 +3,11 @@
 A free, fully-offline two-player tug-of-war quiz game for Android tablets and
 large touchscreens.
 
-**Latest release: [v1.1.0](https://github.com/WGRALGO/WGRALGO-Teen-Health-Wellness-Showdown/releases/tag/v1.1.0)**
-— the new game from the website: setup screen with team names, topics, ages
-10–12 or 13–18, game length, best-of-3 and sound; question timer and steal
-turns; pause; a big new logo on the app icon and splash screen. **Signed with
-a new key: uninstall older versions first** (see below). Download the signed APK from the
+**Latest release: [v2.0.0](https://github.com/WGRALGO/WGRALGO-Teen-Health-Wellness-Showdown/releases/tag/v2.0.0)**
+— **optimized for tablets in landscape.** The name under the app icon is now
+"Teen Health & Wellness Showdown", and the APK is now named `WGRALGO-TeenHealthWellnessShowdown-v2.0.0.apk`.
+It installs straight over v1.1.0. Versions 1.0.5 and older used a different
+signing key, so uninstall those first (see below). Download the signed APK from the
 [Releases page](https://github.com/WGRALGO/WGRALGO-Teen-Health-Wellness-Showdown/releases).
 
 ## Description
@@ -145,12 +145,12 @@ the workflow from the Actions tab on `main`.
 
 Easiest path: grab the prebuilt signed APK from the
 [latest release](https://github.com/WGRALGO/WGRALGO-Teen-Health-Wellness-Showdown/releases/latest)
-(`WGRALGO-TeenHealth-v1.1.0.apk`).
+(`WGRALGO-TeenHealthWellnessShowdown-v2.0.0.apk`).
 
-1. Copy the APK to the device, or run `adb install -r WGRALGO-TeenHealth-v1.1.0.apk`.
+1. Copy the APK to the device, or run `adb install -r WGRALGO-TeenHealthWellnessShowdown-v2.0.0.apk`.
 2. On the device, enable **Install unknown apps** for your file manager.
 3. Tap the APK to install.
-4. Launch **WGRALGO Teen Health & Wellness Showdown**.
+4. Launch **Teen Health & Wellness Showdown**.
 
 > **Have v1.0.5 or older installed? Uninstall it first.** v1.1.0 is signed
 > with a new release key, so Android won't install it over older versions. The
@@ -163,7 +163,7 @@ Release signing certificate from v1.1.0 onward
 `2E:6D:7B:93:E0:C1:9D:2D:0A:B4:74:CB:4B:FD:47:E0:5F:43:6A:7E:A1:3D:50:C7:FE:0B:17:60:B9:8C:2D:67`
 
 Verify the download with the `.sha256` file attached to the release:
-`sha256sum -c WGRALGO-TeenHealth-v1.1.0.apk.sha256`
+`sha256sum -c WGRALGO-TeenHealthWellnessShowdown-v2.0.0.apk.sha256`
 
 The app runs entirely offline; airplane mode is fine.
 
@@ -182,7 +182,7 @@ team, Esc or P = pause) exists for testing with a keyboard.
 
 ## Version History
 
-See [CHANGELOG.md](CHANGELOG.md) for the full history. Current: **v1.1.0**
+See [CHANGELOG.md](CHANGELOG.md) for the full history. Current: **v2.0.0**
 (`versionCode 7`).
 
 ## Roadmap

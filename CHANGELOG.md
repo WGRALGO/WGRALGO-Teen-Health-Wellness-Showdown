@@ -2,6 +2,14 @@
 
 All notable changes to WGRALGO Teen Health & Wellness Showdown are documented here.
 
+## [2.0.0] — 2026-10-01
+
+- Version 2.0.0 (versionCode 200).
+- The APK file is now named `WGRALGO-TeenHealthWellnessShowdown-v2.0.0.apk`. All WGRALGO apps now use the same `WGRALGO-<AppName>-v<version>.apk` naming.
+- The name under the app icon is now **Teen Health & Wellness Showdown** (no "WGRALGO" prefix), to match the other WGRALGO apps.
+- **Optimized for tablets in landscape.** The game stays in landscape on every device. Phones work in landscape too, but the layout is tighter.
+- No changes to the questions, scoring, privacy, or license.
+
 ## [1.1.0] — 2026-10-01
 
 - New game from the website version (single `index.html` replaces

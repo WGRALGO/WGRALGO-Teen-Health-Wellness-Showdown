@@ -79,18 +79,18 @@ jobs:
 
       - name: Rename APK and checksum
         run: |
-          APK="WGRALGO-TeenHealth-v${{ steps.ver.outputs.version }}.apk"
+          APK="WGRALGO-TeenHealthWellnessShowdown-v${{ steps.ver.outputs.version }}.apk"
           cp app/build/outputs/apk/release/app-release.apk "$APK"
           sha256sum "$APK" > "$APK.sha256"
           cat "$APK.sha256"
 
       - name: Validate release APK
-        run: bash tools/validate-release.sh "WGRALGO-TeenHealth-v${{ steps.ver.outputs.version }}.apk"
+        run: bash tools/validate-release.sh "WGRALGO-TeenHealthWellnessShowdown-v${{ steps.ver.outputs.version }}.apk"
 
       - name: Print signing certificate
         run: |
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          "$BT/apksigner" verify --print-certs "WGRALGO-TeenHealth-v${{ steps.ver.outputs.version }}.apk"
+          "$BT/apksigner" verify --print-certs "WGRALGO-TeenHealthWellnessShowdown-v${{ steps.ver.outputs.version }}.apk"
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -100,13 +100,13 @@ jobs:
           name: Teen Health & Wellness Showdown v${{ steps.ver.outputs.version }}
           body_path: release-notes/v${{ steps.ver.outputs.version }}.md
           files: |
-            WGRALGO-TeenHealth-v${{ steps.ver.outputs.version }}.apk
-            WGRALGO-TeenHealth-v${{ steps.ver.outputs.version }}.apk.sha256
+            WGRALGO-TeenHealthWellnessShowdown-v${{ steps.ver.outputs.version }}.apk
+            WGRALGO-TeenHealthWellnessShowdown-v${{ steps.ver.outputs.version }}.apk.sha256
 
       - name: Upload APK as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: WGRALGO-TeenHealth-v${{ steps.ver.outputs.version }}
+          name: WGRALGO-TeenHealthWellnessShowdown-v${{ steps.ver.outputs.version }}
           path: |
-            WGRALGO-TeenHealth-v${{ steps.ver.outputs.version }}.apk
-            WGRALGO-TeenHealth-v${{ steps.ver.outputs.version }}.apk.sha256
+            WGRALGO-TeenHealthWellnessShowdown-v${{ steps.ver.outputs.version }}.apk
+            WGRALGO-TeenHealthWellnessShowdown-v${{ steps.ver.outputs.version }}.apk.sha256
